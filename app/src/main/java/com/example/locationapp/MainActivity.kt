@@ -22,19 +22,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.locationapp.ui.theme.LocationAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+          val viewModel: LocationViewModel = viewModel()
             LocationAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyApp()
+                    MyApp(viewModel)
                 }
             }
         }
@@ -42,10 +44,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(){
+fun MyApp(viewModel: LocationViewModel){
     val context = LocalContext.current //getting the current context of the activity that we are on
-    val locationUtils = LocationUtils(context)
-    locationDisplay(locationUtils = locationUtils, context = context)
+    val locationUtils = LocationUtils(context) //returns true or false if
+
+    locationDisplay(locationUtils = locationUtils, viewModel ,context = context)
 }
 
 /*The composable below itself is used to set up the user interface for location display
@@ -55,9 +58,14 @@ and updating the user's location.
 @Composable
 fun locationDisplay(
     locationUtils: LocationUtils,
-    context: Context
+    viewModel: LocationViewModel,
+    context: Context,
     ){
 
+
+    //We will use this request for permission launcher only if the user has not granted permission
+    //contract is what we are trying to get.
+    //onResult is the result of getting what is in the contract.
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
@@ -97,9 +105,9 @@ fun locationDisplay(
                 //Permission already granted update the location
 
             }else{
-                //Request location permission
+                //Request location permission by launching the rational
                 requestPermissionLauncher.launch(
-                    arrayOf(
+                    arrayOf(//Since we are requesting multiple permissions they will be in the form of an array.
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     )
