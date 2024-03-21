@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
           val viewModel: LocationViewModel = viewModel()
+
             LocationAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -64,7 +65,9 @@ fun locationDisplay(
 
     val location = viewModel.location.value
 
-
+    val address = location?.let{
+        locationUtils.reverseGeocodeLocation(location)
+    }
     //We will use this request for permission launcher only if the user has not granted permission
     //contract is what we are trying to get.
     //onResult is the result of getting what is in the contract.
@@ -102,7 +105,7 @@ fun locationDisplay(
         verticalArrangement = Arrangement.Center
     ){
         if(location != null){
-            Text("Address: ${location.latitude} ${location.longitude}")
+            Text("Address: ${location.latitude} ${location.longitude} \n $address")
         }else{
             Text(text = "Location not available")
         }
