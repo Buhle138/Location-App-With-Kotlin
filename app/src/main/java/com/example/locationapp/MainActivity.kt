@@ -62,6 +62,8 @@ fun locationDisplay(
     context: Context,
     ){
 
+    val location = viewModel.location.value
+
 
     //We will use this request for permission launcher only if the user has not granted permission
     //contract is what we are trying to get.
@@ -72,6 +74,7 @@ fun locationDisplay(
             if(permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true && permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true){
                 //I have access to your location
 
+                locationUtils.requestLocationUpdates(viewModel = viewModel)
             }else{
                 //Ask for permission
                 val rationalRequired  = ActivityCompat.shouldShowRequestPermissionRationale(
@@ -98,11 +101,17 @@ fun locationDisplay(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
-        Text(text = "Location not available")
+        if(location != null){
+            Text("Address: ${location.latitude} ${location.longitude}")
+        }else{
+            Text(text = "Location not available")
+        }
+
         
         Button(onClick = {
             if(locationUtils.hasLocationPermission(context)){
                 //Permission already granted update the location
+                locationUtils.requestLocationUpdates(viewModel)
 
             }else{
                 //Request location permission by launching the rational
